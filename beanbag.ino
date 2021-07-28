@@ -48,12 +48,12 @@ byte vibrate = 0;
 // Reset func 
 void (* resetFunc) (void) = 0;
 
-float map_f(int from, int from_a, int from_b, int to_a, int to_b) {
+float map_f(int x, int in_min, int in_max, int out_min, int out_max) {
   float rval = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-  if (rval < to_a)
-    return to_a;
-  if (rval > to_b)
-    return to_b;
+  if (rval < out_min)
+    return out_min;
+  if (rval > out_max)
+    return out_max;
   return rval;
 }
 
@@ -136,8 +136,17 @@ void loop() {
         // https://www.chiefdelphi.com/t/west-coast-drive-code/122715/2
       #endif
 
-      left_mtr.writeMicroseconds(map_f(left_amt, 0, 255, 1000, 2000));
-      right_mtr.writeMicroseconds(map_f(right_amt, 0, 255, 1000, 2000));
+      int left_us  = map_f(left_amt, 0, 255, 1000, 2000);
+      int right_us = map_f(right_amt, 0, 255, 1000, 2000);
+      
+      left_mtr.writeMicroseconds(left_us);
+      right_mtr.writeMicroseconds(right_us);
+      
+      Serial.print("Commanded: ");
+      Serial.print(left_us, DEC);
+      Serial.print(",");
+      Serial.print(right_us, DEC);
+      Serial.println();
     }
   }
   delay(50);  
